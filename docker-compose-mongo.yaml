@@ -1,0 +1,63 @@
+
+
+# # docker run -d -p 27017:27017 --net mongo-network -e MONGO_INIT_ROOT_USERNAME=devansh -e MONGO_INITDB_ROOT_USERNAME=secret --name mongodb mongo:latest
+
+# # docker run -d -p 8081:8081 --net mongo-network -e ME_CONFIG_MONGODB_ADMINUSERNAME=devansh -e ME_CONFIG_MONGODB_ADMINPASSWORD=secret -e ME_CONFIG_MONGODB_SERVER=mongodb --name mongo-express mongo-express:latest
+
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - mongo-network
+    volumes:
+      - host-volume:/data/db
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD}
+      ME_CONFIG_MONGODB_SERVER: mongodb
+    depends_on:
+      - mongodb
+    networks:
+      - mongo-network
+
+  node-app:
+    image: form-application:1.0
+    container_name: node-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_DB_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_DB_PWD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_PORT: 27017
+      MONGO_DATABASE: user-account
+    depends_on:
+      - mongodb
+    networks:
+      - mongo-network
+
+networks:
+  mongo-network:
+    driver: bridge
+
+volumes:
+  host-volume:
+    driver: local
+  
