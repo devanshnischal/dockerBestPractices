@@ -38,6 +38,6 @@ I’ve built a Docker image that encapsulates my simple Node.js application feat
 
 6. Access the containers on the localhost using :
    localhost:3000 (application)
-   localhost:8081 (mongo-express UI)
+   localhost:8081 (mongo-express UI) | Username = admin , password = pass 
    localhost:27017 (mongodb)
 
